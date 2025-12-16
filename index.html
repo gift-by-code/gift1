@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>You've Got a Gift 🎁</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  height: 100vh;
+  background: linear-gradient(135deg, #141e30, #243b55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.gift-box {
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.gift-box:hover {
+  transform: scale(1.05);
+}
+
+.gift {
+  font-size: 100px;
+  animation: bounce 2s infinite;
+}
+
+.open-text {
+  color: #fff;
+  margin-top: 10px;
+  opacity: 0.8;
+}
+
+.card {
+  position: absolute;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px;
+  width: 350px;
+  text-align: center;
+  color: #fff;
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.card.show {
+  animation: reveal 1s forwards;
+  pointer-events: auto;
+}
+
+.card h1 {
+  font-size: 28px;
+}
+
+.card h2 {
+  font-size: 18px;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+
+.message {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.from {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="gift-box" onclick="openGift()">
+  <div class="gift">🎁</div>
+  <div class="open-text">Tap to open your gift</div>
+</div>
+
+<div class="card" id="card">
+  <h1>Happy Birthday</h1>
+  <h2>Sarah 🎂</h2>
+
+  <div class="message">
+    This little surprise was made just for you.  
+    May your day be filled with smiles, love, and joy.
+  </div>
+
+  <div class="from">
+    — Made with ❤️ using code
+  </div>
+</div>
+
+<script>
+function openGift() {
+  document.querySelector('.gift-box').style.display = 'none';
+  document.getElementById('card').classList.add('show');
+}
+</script>
+
+</body>
+</html>
