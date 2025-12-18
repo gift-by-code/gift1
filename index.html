@@ -2,135 +2,124 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>You've Got a Gift 🎁</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<title>Realistic Spider 🕷️</title>
 
 <style>
-* {
+html, body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
-
-body {
-  height: 100vh;
-  background: linear-gradient(135deg, #141e30, #243b55);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: radial-gradient(circle at center, #111, #000);
   overflow: hidden;
+  height: 100%;
 }
-
-.gift-box {
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.3s;
-}
-
-.gift-box:hover {
-  transform: scale(1.05);
-}
-
-.gift {
-  font-size: 100px;
-  animation: bounce 2s infinite;
-}
-
-.open-text {
-  color: #fff;
-  margin-top: 10px;
-  opacity: 0.8;
-}
-
-.card {
-  position: absolute;
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 40px;
-  width: 350px;
-  text-align: center;
-  color: #fff;
-  opacity: 0;
-  transform: scale(0.8);
-  pointer-events: none;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-
-.card.show {
-  animation: reveal 1s forwards;
-  pointer-events: auto;
-}
-
-.card h1 {
-  font-size: 28px;
-}
-
-.card h2 {
-  font-size: 18px;
-  font-weight: 300;
-  margin-bottom: 20px;
-}
-
-.message {
-  font-size: 16px;
-  line-height: 1.6;
-  margin-bottom: 25px;
-}
-
-.from {
-  font-size: 14px;
-  opacity: 0.8;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
-}
-
-@keyframes reveal {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+canvas {
+  display: block;
 }
 </style>
 </head>
 
 <body>
-
-<div class="gift-box" onclick="openGift()">
-  <div class="gift">🎁</div>
-  <div class="open-text">Tap to open your gift</div>
-</div>
-
-<div class="card" id="card">
-  <h1>Happy Birthday</h1>
-  <h2>Hafsa 🎂</h2>
-
-  <div class="message">
-    This little surprise was made just for you.  
-    May your day be filled with smiles, love, and joy.
-  </div>
-
-  <div class="from">
-    — Made with ❤️ using code
-  </div>
-</div>
+<canvas id="c"></canvas>
 
 <script>
-function openGift() {
-  document.querySelector('.gift-box').style.display = 'none';
-  document.getElementById('card').classList.add('show');
-}
-</script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
 
+function resize() {
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+}
+resize();
+addEventListener("resize", resize);
+
+const mouse = { x: canvas.width/2, y: canvas.height/2 };
+addEventListener("mousemove", e => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+});
+
+const spider = {
+  x: canvas.width/2,
+  y: canvas.height/2,
+  vx: 0,
+  vy: 0,
+  angle: 0
+};
+
+function drawLeg(baseAngle, phase) {
+  const hip = 14;
+  const knee = 22;
+  const t = Date.now() * 0.004 + phase;
+
+  const a1 = baseAngle + Math.sin(t) * 0.25;
+  const a2 = a1 + Math.sin(t + 1) * 0.35;
+
+  const x1 = Math.cos(a1) * hip;
+  const y1 = Math.sin(a1) * hip;
+  const x2 = x1 + Math.cos(a2) * knee;
+  const y2 = y1 + Math.sin(a2) * knee;
+
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.strokeStyle = "#aaa";
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+}
+
+function drawSpider() {
+  // movement with inertia
+  spider.vx += (mouse.x - spider.x) * 0.002;
+  spider.vy += (mouse.y - spider.y) * 0.002;
+  spider.vx *= 0.92;
+  spider.vy *= 0.92;
+
+  spider.x += spider.vx;
+  spider.y += spider.vy;
+
+  spider.angle = Math.atan2(spider.vy, spider.vx);
+
+  ctx.save();
+  ctx.translate(spider.x, spider.y);
+  ctx.rotate(spider.angle);
+
+  // legs
+  for (let i = 0; i < 8; i++) {
+    const side = i < 4 ? -1 : 1;
+    const offset = (i % 4 - 1.5) * 0.5;
+    drawLeg(side * (Math.PI / 2 + offset), i);
+  }
+
+  // abdomen (breathing)
+  const breathe = Math.sin(Date.now() * 0.003) * 1.2;
+  ctx.beginPath();
+  ctx.ellipse(-6, 0, 9 + breathe, 7 + breathe, 0, 0, Math.PI * 2);
+  ctx.fillStyle = "#222";
+  ctx.fill();
+
+  // head
+  ctx.beginPath();
+  ctx.arc(6, 0, 6, 0, Math.PI * 2);
+  ctx.fillStyle = "#333";
+  ctx.fill();
+
+  // eyes
+  ctx.fillStyle = "#ff4444";
+  ctx.beginPath();
+  ctx.arc(8, -2, 1.2, 0, Math.PI * 2);
+  ctx.arc(8, 2, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function loop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawSpider();
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
 </body>
 </html>
-
