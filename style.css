@@ -1,0 +1,176 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.navbar{
+    width: 100%;
+    padding: 2vh 5vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #000;
+    color: #fff;
+}
+
+.nav-links a{
+    margin-left: 2vw;
+    text-decoration: none;
+    color: #fff;
+    font-size: 1.1em;
+}
+
+.logo{
+    font-size: 1.5em;
+    font-weight: bold;
+    color: red;
+}
+
+.hero{
+    height: 90vh;
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+                url('https://picsum.photos/1200/800');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 5vw;
+    color: #fff;
+}
+
+.hero-content h1{
+    font-size: 3em;
+    color: red;
+}
+
+.hero-content p{
+    font-size: 1.2em;
+    margin-top: 1vh;
+}
+
+.btn{
+    padding: 1em 2.5em;
+    background: red;
+    color: #fff;
+    border-radius: 0.5em;
+    display: inline-block;
+    margin-top: 3vh;
+}
+
+.services{
+    padding: 8vh 5vw;
+    background: #111;
+    color: white;
+}
+
+.services h2{
+    text-align: center;
+    margin-bottom: 5vh;
+    font-size: 2em;
+    color: red;
+}
+
+.service-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20em, 1fr));
+    gap: 3vw;
+}
+
+/* Animation */
+.fade-in{
+    opacity: 0;
+    transform: translateY(3vh);
+    animation: fadeInUp 1.2s ease forwards;
+}
+
+.fade-in:nth-child(2){ animation-delay: .2s; }
+.fade-in:nth-child(3){ animation-delay: .4s; }
+
+@keyframes fadeInUp {
+    to{
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.service-card{
+    background: #222;
+    padding: 3vh 2vw;
+    border-left: 0.5em solid red;
+    border-radius: 0.5em;
+    transition: 0.4s;
+}
+
+.service-card:hover{
+    transform: translateY(-2vh);
+    background: #333;
+}
+
+/* ABOUT */
+.about{
+    padding: 8vh 5vw;
+    background: #000;
+    color: #fff;
+    text-align: center;
+}
+
+.about h2{
+    font-size: 2em;
+    color: red;
+}
+
+/* CONTACT */
+.contact{
+    padding: 8vh 5vw;
+    background: #111;
+    color: white;
+    text-align: center;
+}
+
+.contact-form{
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    margin: auto;
+    gap: 2vh;
+}
+
+.contact-form input,
+.contact-form textarea{
+    padding: 1em;
+    width: 100%;
+    border: 0.2em solid red;
+    background: #000;
+    color: #fff;
+    border-radius: 0.5em;
+}
+
+.contact-form button{
+    padding: 1em;
+    background: red;
+    border: none;
+    color: #fff;
+    border-radius: 0.5em;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.footer{
+    background: #000;
+    color: white;
+    text-align: center;
+    padding: 2vh 0;
+}
+
+@media (max-width: 45em){
+    .hero-content h1{
+        font-size: 2.2em;
+    }
+    .contact-form{
+        width: 90%;
+    }
+}
