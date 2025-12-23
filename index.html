@@ -1,77 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta-name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red & Black Grid Website</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Music Reactive Heart+</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:#050505;
+}
+canvas{display:block}
+#tap{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-size:1.2rem;
+  background:#050505;
+  z-index:10;
+}
+</style>
 </head>
 <body>
 
-<header class="navbar">
-    <div class="logo">MyBrand</div>
-    <nav class="nav-links">
-        <a href="#home">Home</a>
-        <a href="#services">Services</a>
-        <a href="#about">About</a>
-        <a href="#contact">Contact</a>
-    </nav>
-</header>
+<div id="tap">Tap to start ❤️🎵</div>
+<canvas id="c"></canvas>
 
-<section id="home" class="hero">
-    <div class="hero-content">
-        <h1>Powerful Digital Solutions</h1>
-        <p>Fast, responsive and modern websites built for real-world use.</p>
-        <a href="#services" class="btn">Explore Services</a>
-    </div>
-</section>
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const tap = document.getElementById("tap");
 
-<section id="services" class="services">
-    <h2>Our Services</h2>
+function resize(){
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+}
+resize();
+addEventListener("resize", resize);
 
-    <div class="service-grid">
+/* HEART FORMULA */
+function heart(t){
+  return {
+    x:16*Math.pow(Math.sin(t),3),
+    y:-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))
+  }
+}
 
-        <div class="service-card fade-in">
-            <h3>UI/UX Design</h3>
-            <p>Beautiful and user-friendly designs.</p>
-        </div>
+/* MAIN HEART PARTICLES */
+const particles=[];
+const TOTAL=900;
 
-        <div class="service-card fade-in">
-            <h3>Development</h3>
-            <p>High-performance web apps.</p>
-        </div>
+for(let i=0;i<TOTAL;i++){
+  const t=Math.random()*Math.PI*2;
+  const p=heart(t);
+  particles.push({
+    x:canvas.width/2,
+    y:canvas.height/2,
+    tx:p.x,
+    ty:p.y,
+    r:1+Math.random()*1.5
+  });
+}
 
-        <div class="service-card fade-in">
-            <h3>Brand Identity</h3>
-            <p>Logos, themes, and full brand systems.</p>
-        </div>
+/* FLOATING MINI HEARTS (BACKGROUND) */
+const minis=[];
+for(let i=0;i<40;i++){
+  minis.push({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    s:0.5+Math.random(),
+    vy:0.2+Math.random()*0.5,
+    a:0.2+Math.random()*0.3
+  });
+}
 
-    </div>
-</section>
+/* AUDIO */
+let analyser,dataArray;
+tap.onclick = async ()=>{
+  tap.style.display="none";
+  const ctxAudio = new (AudioContext||webkitAudioContext)();
+  const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+  const src = ctxAudio.createMediaStreamSource(stream);
+  analyser = ctxAudio.createAnalyser();
+  analyser.fftSize=256;
+  dataArray=new Uint8Array(analyser.frequencyBinCount);
+  src.connect(analyser);
+  animate();
+};
 
-<section id="about" class="about">
-    <div class="about-inner">
-        <h2>About Us</h2>
-        <p>
-            We create modern, responsive and efficient digital products using the latest technologies.
-        </p>
-    </div>
-</section>
+let ringPulse=0;
 
-<section id="contact" class="contact">
-    <h2>Contact Us</h2>
+/* DRAW MINI HEART */
+function drawMiniHeart(x,y,s,alpha){
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.scale(s,s);
+  ctx.globalAlpha=alpha;
+  ctx.strokeStyle="#ff7aa2";
+  ctx.beginPath();
+  ctx.moveTo(0,0);
+  ctx.bezierCurveTo(-5,-5,-15,5,0,15);
+  ctx.bezierCurveTo(15,5,5,-5,0,0);
+  ctx.stroke();
+  ctx.restore();
+}
 
-    <form class="contact-form">
-        <input type="text" placeholder="Your Name" required>
-        <input type="email" placeholder="Your Email" required>
-        <textarea placeholder="Message" rows="4"></textarea>
-        <button type="submit">Send</button>
-    </form>
-</section>
+/* ANIMATION */
+function animate(){
+  requestAnimationFrame(animate);
 
-<footer class="footer">
-    <p>© 2025 MyBrand. All Rights Reserved.</p>
-</footer>
+  analyser.getByteFrequencyData(dataArray);
+
+  let bass=0;
+  for(let i=0;i<10;i++) bass+=dataArray[i];
+  bass/=10;
+  const energy=bass/255;
+
+  /* fade background */
+  ctx.fillStyle="rgba(5,5,5,0.25)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  /* BACKGROUND WAVES */
+  ctx.strokeStyle="rgba(100,150,255,0.05)";
+  for(let i=0;i<6;i++){
+    ctx.beginPath();
+    for(let x=0;x<canvas.width;x+=20){
+      const y=canvas.height/2 +
+        Math.sin(x*0.01+i+energy*4)*60;
+      ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+
+  /* MINI HEARTS FLOAT */
+  minis.forEach(m=>{
+    m.y-=m.vy;
+    if(m.y<-20) m.y=canvas.height+20;
+    drawMiniHeart(m.x,m.y,m.s,m.a);
+  });
+
+  /* PULSE RING */
+  if(energy>0.6) ringPulse=1;
+  if(ringPulse>0){
+    ctx.strokeStyle=`rgba(255,120,150,${ringPulse})`;
+    ctx.beginPath();
+    ctx.arc(canvas.width/2,canvas.height/2,
+      120+ringPulse*120,0,Math.PI*2);
+    ctx.stroke();
+    ringPulse-=0.03;
+  }
+
+  /* MAIN HEART */
+  const pulse=1+energy*0.3;
+  particles.forEach(p=>{
+    const hx=p.tx*12*pulse+canvas.width/2;
+    const hy=p.ty*12*pulse+canvas.height/2;
+    p.x+=(hx-p.x)*0.08;
+    p.y+=(hy-p.y)*0.08;
+
+    ctx.beginPath();
+    ctx.fillStyle=`rgba(255,${80+energy*120},${120+energy*80},0.9)`;
+    ctx.arc(p.x,p.y,p.r+energy*2,0,Math.PI*2);
+    ctx.fill();
+  });
+}
+</script>
 
 </body>
 </html>
